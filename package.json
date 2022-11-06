@@ -1,0 +1,31 @@
+{
+  "name": "nodejs-complete-e-commerce-web-api",
+  "version": "1.0.0",
+  "description": "Nodejs web api - e-commerce",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/angelino-valeta/nodejs-complete-e-commerce-web-api.git"
+  },
+  "keywords": [
+    "nodejs",
+    "express",
+    "mongodb"
+  ],
+  "author": "Angelino Valeta",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/angelino-valeta/nodejs-complete-e-commerce-web-api/issues"
+  },
+  "homepage": "https://github.com/angelino-valeta/nodejs-complete-e-commerce-web-api#readme",
+  "devDependencies": {
+    "nodemon": "^2.0.20"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}
