@@ -52,7 +52,7 @@ router.post("/", async (req, res) => {
 
 router.get("/", async (req, res) => {
   try{
-    const products = await Product.find().select('name descripton image');
+    const products = await Product.find().select('name descripton image').populate('category');
     return res.status(200).json({success: true, data: products})
   }catch(err){
     return res.status(500).json({success: false, error: err})
@@ -65,7 +65,7 @@ router.get('/:id', async(req, res) => {
 
   try{
 
-    const product = await Product.findById(id)
+    const product = await Product.findById(id).populate('category')
 
     if(!product){
       return res.status(400).json({ success: false, mensagem: `Cannot given Product with ID ${id}` })
