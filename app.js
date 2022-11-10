@@ -5,7 +5,7 @@ const path = require("path");
 const fs = require("fs");
 const uuid = require("node-uuid");
 const mongoose = require("mongoose");
-// const cors = require('cors')
+const cors = require('cors')
 
 const app = express();
 require("dotenv/config");
@@ -18,8 +18,9 @@ const accessLogStream = fs.createWriteStream(fileAccessLog, { flags: "a" });
 
 // Middleware
 app.use(bodyParser.json());
-// app.use(cors())
-// app.options('*', cors())
+app.use(cors());
+app.options('*', cors());
+
 
 morgan.token("id", function getId(req) {
   return req.id;
