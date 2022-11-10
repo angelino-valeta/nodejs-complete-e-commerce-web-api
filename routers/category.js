@@ -40,6 +40,25 @@ router.post("/", async (req, res) => {
 
 });
 
+router.get('/:id', async (req, res) => {
+  const { id } = req.params;
+
+  try{
+
+    const category = await Category.findById(id);
+
+    if(!category){
+      return res.status(404).json({success: false, message: 'The category not found'})
+    }
+
+    return res.status(200).json({success: true, data: category});
+
+  }catch(err){
+    return res.status(400).json({success: false, error: err})
+  }
+
+})
+
 router.delete("/:id", async (req, res) => {
   const { id } = req.params;
 
