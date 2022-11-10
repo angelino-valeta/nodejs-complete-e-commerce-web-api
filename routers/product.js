@@ -97,6 +97,11 @@ router.put('/:id', async(req, res) => {
   } = req.body;
   try{
 
+    const categoryValid = await Category.findById(category);
+    if(!categoryValid){
+      return res.status(400).json({success: false, message: "Cannot create product because category invalid"});
+    }  
+  
     const product = await Product.findByIdAndUpdate(id, {
       name,
       description,
