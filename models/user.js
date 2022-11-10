@@ -10,7 +10,11 @@ const userSchrma = mongoose.Schema({
   zip: String,
   country: String,
   phone: Number,
-  isAdmin: boolean
+  isAdmin: boolean,
+  dateCreated: {
+    type: Date,
+    default: Date.now
+  }
 })
 
 exports.User = mongoose.model('Model', userSchrma);
