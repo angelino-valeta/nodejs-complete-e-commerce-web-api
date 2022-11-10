@@ -1,47 +1,58 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const { Product } = require('../models/product');
+const { Product } = require("../models/product");
+const { Category } = require("../models/category");
 
+router.post("/", async (req, res) => {
 
-router.post('/', (req, res) => {
-  const body = req.body;
+  const {
+    name,
+    description,
+    image,
+    images,
+    price,
+    category,
+    countInStock,
+    rating,
+    isFeature,
+    numReviews,
+  } = req.body;
 
-  const product = new Product({
-    name: body.name,
-    image: body.image,
-    countInStock: body.countInStock,
-  });
+  try{
 
-  product
-    .save()
-    .then((data) => {
-      return res.status(201).json({
-        data,
-        success: true,
-      });
+    const categoryValid = await Category.findById(category);
+    if(!categoryValid){
+      return res.status(400).json({success: false, message: "Cannot create product because category invalid"});
+    }  
+  
+
+    const product = await Product.create({
+      name,
+      description,
+      image,
+      images,
+      price,
+      category,
+      countInStock,
+      rating,
+      isFeature,
+      numReviews,
     })
-    .catch((err) => {
-      return res.status(500).json({
-        error: err,
-        success: false,
-      });
-    });
+
+    return res.status(201).json({success: true, data: product})
+
+  }catch(err){
+    return res.status(500).json({ success: false, error: err })
+  }
 });
 
-router.get('/', async (req, res) => {
-  const products = await Product.find();
-
-  if (!products) {
-    return res.status(500).json({
-      error: err,
-      success: false,
-    });
+router.get("/", async (req, res) => {
+  try{
+    const products = await Product.find().select('name descripton image -_id');
+    return res.status(200).json({success: true, data: products})
+  }catch(err){
+    return res.status(500).json({success: false, error: err})
   }
-
-  return res.status(200).json({
-    data: products,
-    success: true,
-  });
 });
 
 module.exports = router;
