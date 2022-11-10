@@ -39,6 +39,10 @@ router.post("/", async (req, res) => {
       numReviews,
     })
 
+    if(!product){
+      return res.status(400).json({success: false, message: "The Product cannot be created"})
+    }
+
     return res.status(201).json({success: true, data: product})
 
   }catch(err){
