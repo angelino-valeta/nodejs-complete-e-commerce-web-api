@@ -5,6 +5,7 @@ const path = require("path");
 const fs = require("fs");
 const uuid = require("node-uuid");
 const mongoose = require("mongoose");
+// const cors = require('cors')
 
 const app = express();
 require("dotenv/config");
@@ -17,6 +18,8 @@ const accessLogStream = fs.createWriteStream(fileAccessLog, { flags: "a" });
 
 // Middleware
 app.use(bodyParser.json());
+// app.use(cors())
+// app.options('*', cors())
 
 morgan.token("id", function getId(req) {
   return req.id;
@@ -31,61 +34,19 @@ app.use(
   )
 );
 
-const productSchema = mongoose.Schema({
-  name: String,
-  image: String,
-  countInStock: {
-    type: Number,
-    required: true,
-  },
-});
 
-const Product = mongoose.model("Product", productSchema);
+// Import Routes
+const productRouters = require('./routers/product');
+const categoryRouters = require('./routers/category');
+
+app.use(`${api}/products`, productRouters)
+app.use(`${api}/categories`, categoryRouters);
 
 app.get("/", (req, res) => {
   res.send("Hello API!!");
 });
 
-app.post(`${api}/products`, (req, res) => {
-  const body = req.body;
 
-  const product = new Product({
-    name: body.name,
-    image: body.image,
-    countInStock: body.countInStock,
-  });
-
-  product
-    .save()
-    .then((data) => {
-      return res.status(201).json({
-        data,
-        success: true,
-      });
-    })
-    .catch((err) => {
-      return res.status(500).json({
-        error: err,
-        success: false,
-      });
-    });
-});
-
-app.get(`${api}/products`, async (req, res) => {
-  const products = await Product.find();
-
-  if (!products) {
-    return res.status(500).json({
-      error: err,
-      success: false,
-    });
-  }
-
-  return res.status(200).json({
-    data: products,
-    success: true,
-  });
-});
 
 /*
 mongoose.connect(process.env.CONNECTION_STRING_LOCAL, { 
