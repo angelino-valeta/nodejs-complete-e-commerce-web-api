@@ -1,7 +1,7 @@
 const { Category } = require("../models/category");
 const express = require("express");
 const router = express.Router();
-const { validateObjectId } = require("../helpers/validateObjectId");
+const mongoose = require('mongoose');
 
 router.get("/", async (req, res) => {
   try {
@@ -41,7 +41,11 @@ router.post("/", async (req, res) => {
 router.get("/:id", async (req, res) => {
   const { id } = req.params;
 
-  validateObjectId(id, res);
+  if (!mongoose.isValidObjectId(id)) {
+    return res
+      .status(400)
+      .json({ success: false, message: "The Id is Invalid" });
+  }
 
   try {
     const category = await Category.findById(id);
@@ -61,8 +65,11 @@ router.get("/:id", async (req, res) => {
 
 router.put("/:id", async (req, res) => {
   const { id } = req.params;
-
-  validateObjectId(id, res);
+  if (!mongoose.isValidObjectId(id)) {
+    return res
+      .status(400)
+      .json({ success: false, message: "The Id is Invalid" });
+  }
 
   const { name, color, icon, image } = req.body;
   try {
@@ -91,7 +98,11 @@ router.put("/:id", async (req, res) => {
 router.delete("/:id", async (req, res) => {
   const { id } = req.params;
 
-  validateObjectId(id, res);
+  if (!mongoose.isValidObjectId(id)) {
+    return res
+      .status(400)
+      .json({ success: false, message: "The Id is Invalid" });
+  }
 
   try {
     const category = await Category.findByIdAndDelete(id);
