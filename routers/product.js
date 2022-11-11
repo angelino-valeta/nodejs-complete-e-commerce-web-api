@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const { Product } = require("../models/product");
 const { Category } = require("../models/category");
-const { validateObjectId } = require("../helpers/validateObjectId");
+const mongoose = require('mongoose');
 
 router.post("/", async (req, res) => {
   const {
@@ -102,7 +102,11 @@ router.get("/get/count", async (req, res) => {
 router.get("/:id", async (req, res) => {
   const { id } = req.params;
 
-  validateObjectId(id, res);
+  if (!mongoose.isValidObjectId(id)) {
+    return res
+      .status(400)
+      .json({ success: false, message: "The Id is Invalid" });
+  }
 
   try {
     const product = await Product.findById(id).populate("category");
@@ -110,7 +114,7 @@ router.get("/:id", async (req, res) => {
     if (!product) {
       return res.status(400).json({
         success: false,
-        mensagem: `Cannot given Product with ID ${id}`,
+        message: `Cannot given Product with ID ${id}`,
       });
     }
 
@@ -123,7 +127,11 @@ router.get("/:id", async (req, res) => {
 router.put("/:id", async (req, res) => {
   const { id } = req.params;
 
-  validateObjectId(id, res);
+  if (!mongoose.isValidObjectId(id)) {
+    return res
+      .status(400)
+      .json({ success: false, message: "The Id is Invalid" });
+  }
 
   const {
     name,
@@ -179,7 +187,11 @@ router.put("/:id", async (req, res) => {
 router.delete("/:id", async (req, res) => {
   const { id } = req.params;
 
-  validateObjectId(id, res);
+  if (!mongoose.isValidObjectId(id)) {
+    return res
+      .status(400)
+      .json({ success: false, message: "The Id is Invalid" });
+  }
 
   try {
     const product = await Product.findByIdAndRemove(id);
