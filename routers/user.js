@@ -22,7 +22,7 @@ router.post("/", async (req, res) => {
     const user = await User.create({
       name,
       email,
-      passwordHash: bcrypt.hashSync(password),
+      passwordHash: bcrypt.hashSync(password, 10),
       street,
       phone,
       apartment,
@@ -32,7 +32,7 @@ router.post("/", async (req, res) => {
       isAdmin,
     });
 
-    return res.status(201).json({ success: true, data: user });
+    return res.status(201).json({ success: true, message: "User created" });
   } catch (err) {
     return res.status(500).json({ success: false, error: err });
   }
@@ -71,5 +71,83 @@ router.get("/:id", async (req, res) => {
     return res.status(500).json({ success: false, error: err });
   }
 });
+
+router.put("/:id", async (req, res) => {
+	const { id } = req.params;
+
+	const {
+		name,
+    email,
+    password,
+    street,
+    phone,
+    apartment,
+    city,
+    zip,
+    country,
+    isAdmin,
+	} = req.body;
+
+	try{
+
+		if(!mongoose.isValidObjectId(id)){
+			return res.status(400).json({success: false, message:" The Id is Invalid"});
+		}
+
+		const userExist = await User.findById(id);
+
+		if(!userExist){
+			return res.status(404).json({success: false, message: `The user with the given ID ${id}, was not found`})
+		}
+
+		let newPassword;
+
+		if(password){
+			newPassword = bcrypt.hashSync(password, 10)
+		}else{
+			newPassword = userExist.passwordHash;	
+		}
+
+		const user = await User.findByIdAndUpdate(id, {
+			name,
+      email,
+      passwordHash: newPassword,
+      street,
+      phone,
+      apartment,
+      city,
+      zip,
+      country,
+      isAdmin,
+		}, {new: true})
+
+		return res.status(200).json({ success: true, message: "User Updated" })
+
+	}catch(err){
+		return res.status(500).json({success: false, error: err});
+	}
+})
+
+router.delete("/:id", async (req, res)=> {
+	const { id } = req.params;
+
+	try{
+		if(!mongoose.isValidObjectId(id)){
+			return res.status(400).json({success: false, message: "The Id is invalid"})
+		}
+
+		const user = await User.findByIdAndRemove(id);
+
+		if(!user){
+			return res.status(404).json({success: false, message: `The user with the given ID ${id}, was not found`})
+		}
+
+		return res.status(200).json({success: true, message: "User deleted"});
+
+
+	}catch(err){
+		return res.status(500).json({success: false, error: err})
+	}
+})
 
 module.exports = router;
