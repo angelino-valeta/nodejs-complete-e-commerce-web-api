@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const { Product } = require("../models/product");
 const { Category } = require("../models/category");
+const mongoose = require('mongoose');
 
 router.post("/", async (req, res) => {
 
@@ -128,6 +129,10 @@ router.put('/:id', async(req, res) => {
 
 router.delete('/:id', async (req, res) => {
   const { id } = req.params;
+
+  if(!mongoose.isValidObjectId(id)){
+    return res.status(400).json({success: false, message: "The Product Id is Invalid"})
+  }
 
   try{
 
