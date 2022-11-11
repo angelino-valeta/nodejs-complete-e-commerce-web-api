@@ -1,7 +1,7 @@
 const { Category } = require("../models/category");
 const express = require("express");
 const router = express.Router();
-const { validateObjectId } = require("./../shared/validateObjectId");
+const { validateObjectId } = require("../helpers/validateObjectId");
 
 router.get("/", async (req, res) => {
   try {
