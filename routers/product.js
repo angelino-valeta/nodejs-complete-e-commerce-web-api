@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const { Product } = require("../models/product");
 const { Category } = require("../models/category");
-const { validateObjectId } = require("./../shared/validateObjectId");
+const { validateObjectId } = require("../helpers/validateObjectId");
 
 router.post("/", async (req, res) => {
   const {
