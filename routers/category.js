@@ -1,6 +1,7 @@
 const { Category } = require("../models/category");
 const express = require("express");
 const router = express.Router();
+const { validateObjectId } = require("./../shared/validateObjectId");
 
 router.get("/", async (req, res) => {
   try {
@@ -40,6 +41,8 @@ router.post("/", async (req, res) => {
 router.get("/:id", async (req, res) => {
   const { id } = req.params;
 
+  validateObjectId(id, res);
+
   try {
     const category = await Category.findById(id);
 
@@ -58,6 +61,9 @@ router.get("/:id", async (req, res) => {
 
 router.put("/:id", async (req, res) => {
   const { id } = req.params;
+
+  validateObjectId(id, res);
+
   const { name, color, icon, image } = req.body;
   try {
     const category = await Category.findByIdAndUpdate(id, {
@@ -84,6 +90,8 @@ router.put("/:id", async (req, res) => {
 
 router.delete("/:id", async (req, res) => {
   const { id } = req.params;
+
+  validateObjectId(id, res);
 
   try {
     const category = await Category.findByIdAndDelete(id);
