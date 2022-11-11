@@ -60,7 +60,6 @@ router.get("/", async (req, res) => {
     filter = { category: query.split(',') }
   }
 
-
   try {
     const products = await Product.find(filter)
       .select("name descripton image")
