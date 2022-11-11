@@ -48,6 +48,20 @@ router.get("/", async (req, res) => {
   }
 });
 
+router.get("/get/count", async(req, res) => {
+	try{
+
+		const totalUser = await User.count();
+
+		return res.status(200).json({success: true, data: {
+			total: totalUser
+		}})
+
+	}catch(err){
+		return res.status(500).json({success: false, error: err})
+	}
+})
+
 router.get("/:id", async (req, res) => {
   const { id } = req.params;
   try {
