@@ -19,6 +19,14 @@ router.post("/", async (req, res) => {
   } = req.body;
 
   try {
+
+
+		const userExist = await User.findOne({email})
+		
+		if(userExist){
+			return res.status(400).json({success: false, message: "Account already with this email, please try again"})
+		}
+
     const user = await User.create({
       name,
       email,
