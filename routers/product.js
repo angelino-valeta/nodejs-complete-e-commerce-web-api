@@ -2,10 +2,9 @@ const express = require("express");
 const router = express.Router();
 const { Product } = require("../models/product");
 const { Category } = require("../models/category");
-const mongoose = require('mongoose');
+const { validateObjectId } = require("./../shared/validateObjectId");
 
 router.post("/", async (req, res) => {
-
   const {
     name,
     description,
@@ -19,13 +18,14 @@ router.post("/", async (req, res) => {
     numReviews,
   } = req.body;
 
-  try{
-
+  try {
     const categoryValid = await Category.findById(category);
-    if(!categoryValid){
-      return res.status(400).json({success: false, message: "Cannot create product because category invalid"});
-    }  
-  
+    if (!categoryValid) {
+      return res.status(400).json({
+        success: false,
+        message: "Cannot create product because category invalid",
+      });
+    }
 
     const product = await Product.create({
       name,
@@ -38,51 +38,85 @@ router.post("/", async (req, res) => {
       rating,
       isFeature,
       numReviews,
-    })
+    });
 
-    if(!product){
-      return res.status(400).json({success: false, message: "The Product cannot be created"})
+    if (!product) {
+      return res
+        .status(400)
+        .json({ success: false, message: "The Product cannot be created" });
     }
 
-    return res.status(201).json({success: true, data: product})
+    return res.status(201).json({ success: true, data: product });
+  } catch (err) {
+    return res.status(500).json({ success: false, error: err });
+  }
+});
+
+router.get('/get/featured', async(req, res) => {
+  try{
+    const products = await Product.find({ isFeature: true });
+
+    return res.status(200).json({
+      success: true,
+      data: products
+    })
 
   }catch(err){
-    return res.status(500).json({ success: false, error: err })
+    return res.status(500).json({success: false, error: err})
+  }
+})
+
+router.get("/get/count", async (req, res) => {
+  try{
+
+  const totalProduct = await Product.count()
+
+  if (!totalProduct) {
+    return res.status(500).json({ success: false });
+  }
+
+  return res.status(200).json({ success: true, data: {total: totalProduct} });
+  }catch(err){
+    return res.status(500).json({ success: false, error: err });
   }
 });
 
 router.get("/", async (req, res) => {
-  try{
-    const products = await Product.find().select('name descripton image').populate('category');
-    return res.status(200).json({success: true, data: products})
-  }catch(err){
-    return res.status(500).json({success: false, error: err})
+  try {
+    const products = await Product.find()
+      .select("name descripton image")
+      .populate("category");
+    return res.status(200).json({ success: true, data: products });
+  } catch (err) {
+    return res.status(500).json({ success: false, error: err });
   }
 });
 
+router.get("/:id", async (req, res) => {
+  const { id } = req.params;
 
-router.get('/:id', async(req, res) => {
-  const { id } = req.params
+  validateObjectId(id, res);
 
-  try{
+  try {
+    const product = await Product.findById(id).populate("category");
 
-    const product = await Product.findById(id).populate('category')
-
-    if(!product){
-      return res.status(400).json({ success: false, mensagem: `Cannot given Product with ID ${id}` })
+    if (!product) {
+      return res.status(400).json({
+        success: false,
+        mensagem: `Cannot given Product with ID ${id}`,
+      });
     }
 
-    return res.status(200).json({success: true, data: product});
-
-  }catch(err){
-    return res.status(500).json({success: false, error: err})
+    return res.status(200).json({ success: true, data: product });
+  } catch (err) {
+    return res.status(500).json({ success: false, error: err });
   }
+});
 
-})
+router.put("/:id", async (req, res) => {
+  const { id } = req.params;
 
-
-router.put('/:id', async(req, res) => {
-  const { id } = req.params
+  validateObjectId(id, res);
 
   const {
     name,
@@ -96,63 +130,69 @@ router.put('/:id', async(req, res) => {
     isFeature,
     numReviews,
   } = req.body;
-  try{
-
+  try {
     const categoryValid = await Category.findById(category);
-    if(!categoryValid){
-      return res.status(400).json({success: false, message: "Cannot create product because category invalid"});
-    }  
-  
-    const product = await Product.findByIdAndUpdate(id, {
-      name,
-      description,
-      image,
-      images,
-      price,
-      category,
-      countInStock,
-      rating,
-      isFeature,
-      numReviews,
-    }, {new: true})
-
-    if(!product){
-      return res.status(404).json({success: false, message: "Product cannot be updated!, not found"})
+    if (!categoryValid) {
+      return res.status(400).json({
+        success: false,
+        message: "Cannot create product because category invalid",
+      });
     }
 
-    return res.status(200).json({success: true, data: product})
+    const product = await Product.findByIdAndUpdate(
+      id,
+      {
+        name,
+        description,
+        image,
+        images,
+        price,
+        category,
+        countInStock,
+        rating,
+        isFeature,
+        numReviews,
+      },
+      { new: true }
+    );
 
-  }catch(err){
-    return res.status(400).json({success: false, error: err})
+    if (!product) {
+      return res.status(404).json({
+        success: false,
+        message: "Product cannot be updated!, not found",
+      });
+    }
+
+    return res.status(200).json({ success: true, data: product });
+  } catch (err) {
+    return res.status(400).json({ success: false, error: err });
   }
-})
+});
 
-router.delete('/:id', async (req, res) => {
+router.delete("/:id", async (req, res) => {
   const { id } = req.params;
 
-  if(!mongoose.isValidObjectId(id)){
-    return res.status(400).json({success: false, message: "The Product Id is Invalid"})
-  }
+  validateObjectId(id, res);
 
-  try{
-
+  try {
     const product = await Product.findByIdAndRemove(id);
-    if(!product){
-      return res.status(404).json({success: false, message: `The category with the given ID ${id}, was not found`})
+    if (!product) {
+      return res.status(404).json({
+        success: false,
+        message: `The category with the given ID ${id}, was not found`,
+      });
     }
 
     return res.status(200).json({
       success: true,
-      message: "Product Deleted"
-    })
-
-  }catch(err){
+      message: "Product Deleted",
+    });
+  } catch (err) {
     return res.status(400).json({
       success: false,
-      error: err
-    })
+      error: err,
+    });
   }
-
-})
+});
 
 module.exports = router;
