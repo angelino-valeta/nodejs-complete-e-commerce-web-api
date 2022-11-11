@@ -5,7 +5,7 @@ const path = require("path");
 const fs = require("fs");
 const uuid = require("node-uuid");
 const mongoose = require("mongoose");
-const cors = require('cors')
+const cors = require("cors");
 
 const app = express();
 require("dotenv/config");
@@ -19,8 +19,7 @@ const accessLogStream = fs.createWriteStream(fileAccessLog, { flags: "a" });
 // Middleware
 app.use(bodyParser.json());
 app.use(cors());
-app.options('*', cors());
-
+app.options("*", cors());
 
 morgan.token("id", function getId(req) {
   return req.id;
@@ -35,19 +34,18 @@ app.use(
   )
 );
 
-
 // Import Routes
-const productRouters = require('./routers/product');
-const categoryRouters = require('./routers/category');
+const productRouters = require("./routers/product");
+const categoryRouters = require("./routers/category");
+const userRouters = require("./routers/user");
 
-app.use(`${api}/products`, productRouters)
+app.use(`${api}/products`, productRouters);
 app.use(`${api}/categories`, categoryRouters);
+app.use(`${api}/users`, userRouters);
 
 app.get("/", (req, res) => {
   res.send("Hello API!!");
 });
-
-
 
 /*
 mongoose.connect(process.env.CONNECTION_STRING_LOCAL, { 
