@@ -52,6 +52,25 @@ router.post("/", async (req, res) => {
   }
 });
 
+router.get("/", async (req, res) => {
+
+  let filter = {}
+  const query = req.query.categories
+  if(query){
+    filter = { category: query.split(',') }
+  }
+
+
+  try {
+    const products = await Product.find(filter)
+      .select("name descripton image")
+      .populate("category");
+    return res.status(200).json({ success: true, data: products });
+  } catch (err) {
+    return res.status(500).json({ success: false, error: err });
+  }
+});
+
 router.get('/get/featured', async(req, res) => {
   try{
     const products = await Product.find({ isFeature: true });
@@ -77,17 +96,6 @@ router.get("/get/count", async (req, res) => {
 
   return res.status(200).json({ success: true, data: {total: totalProduct} });
   }catch(err){
-    return res.status(500).json({ success: false, error: err });
-  }
-});
-
-router.get("/", async (req, res) => {
-  try {
-    const products = await Product.find()
-      .select("name descripton image")
-      .populate("category");
-    return res.status(200).json({ success: true, data: products });
-  } catch (err) {
     return res.status(500).json({ success: false, error: err });
   }
 });
