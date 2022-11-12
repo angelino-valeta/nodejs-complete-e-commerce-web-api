@@ -7,6 +7,7 @@ const uuid = require("node-uuid");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const authJwt = require("./helpers/jwt");
+const errorHandler = require("./helpers/error-handler")
 
 const app = express();
 require("dotenv/config");
@@ -35,7 +36,7 @@ app.use(
 );
 
 app.use(authJwt())
-
+app.use(errorHandler)
 
 
 // Import Routes
