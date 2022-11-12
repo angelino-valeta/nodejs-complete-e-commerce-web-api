@@ -6,6 +6,7 @@ const fs = require("fs");
 const uuid = require("node-uuid");
 const mongoose = require("mongoose");
 const cors = require("cors");
+const authJwt = require("./helpers/jwt");
 
 const app = express();
 require("dotenv/config");
@@ -17,14 +18,13 @@ const fileAccessLog = path.join(__dirname, "access.log");
 const accessLogStream = fs.createWriteStream(fileAccessLog, { flags: "a" });
 
 // Middleware
+
 app.use(bodyParser.json());
 app.use(cors());
 app.options("*", cors());
-
 morgan.token("id", function getId(req) {
   return req.id;
 });
-
 app.use(assignId);
 // app.use(morgan('combined', { stream: accessLogStream }));
 app.use(
@@ -33,6 +33,10 @@ app.use(
     { stream: accessLogStream }
   )
 );
+
+app.use(authJwt())
+
+
 
 // Import Routes
 const productRouters = require("./routers/product");
