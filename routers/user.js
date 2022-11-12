@@ -3,6 +3,7 @@ const { User } = require("../models/user");
 const bcrypt = require("bcryptjs");
 const router = express.Router();
 const mongoose = require("mongoose");
+const errorHandler = require("../helpers/error-handler")
 
 router.post("/", async (req, res) => {
   const {
@@ -42,7 +43,7 @@ router.post("/", async (req, res) => {
 
     return res.status(201).json({ success: true, message: "User created" });
   } catch (err) {
-    return res.status(500).json({ success: false, error: err });
+    return errorHandler(err, req, res)
   }
 });
 
