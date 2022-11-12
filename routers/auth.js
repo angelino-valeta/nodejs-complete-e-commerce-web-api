@@ -5,8 +5,6 @@ const jwt = require("jsonwebtoken");
 
 const router = express.Router();
 
-const secret = process.env.SECRET
-
 router.post("/login", async (req, res) => {
 	const { email, password } = req.body;
 
@@ -19,6 +17,7 @@ router.post("/login", async (req, res) => {
 		}
 
 		if(user && bcrypt.compareSync(password, user.passwordHash)){
+      const secret = process.env.SECRET
 			const token = jwt.sign({userId: user.id}, secret, {expiresIn: "1d"})
 			return res.status(200).json({success: true, data: {
 				user: {name: user.name, email: user.email},
