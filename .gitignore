@@ -1,6 +1,8 @@
 .env
-access.log
+*.log
+acess.log
 node_modules/
+public/uploads/*
 # Build and Release Folders
 bin-debug/
 bin-release/
