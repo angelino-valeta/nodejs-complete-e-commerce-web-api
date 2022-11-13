@@ -181,14 +181,7 @@ router.put("/:id", async (req, res) => {
     numReviews,
   } = req.body;
   try {
-    const categoryValid = await Category.findById(category);
-    if (!categoryValid) {
-      return res.status(400).json({
-        success: false,
-        message: "Cannot create product because category invalid",
-      });
-    }
-
+  
     const product = await Product.findByIdAndUpdate(
       id,
       {
@@ -218,6 +211,46 @@ router.put("/:id", async (req, res) => {
     return res.status(400).json({ success: false, error: err });
   }
 });
+
+router.put("/gallery-images/:id", uploadOptions.array('images',10), async (req, res) => {
+  const { id } = req.params;
+
+  if (!mongoose.isValidObjectId(id)) {
+    return res
+      .status(400)
+      .json({ success: false, message: "The Id is Invalid" });
+  }
+
+  const files = req.files;
+  let imagesPaths = []
+
+  const basePath = `${req.protocol}://${req.get('host')}/public/upload/`
+
+  if(files){
+    files.map(file => {
+      imagesPaths.push(`${basePath}${file.filename}`)
+    })
+  }
+
+  const product = await Product.findByIdAndUpdate(
+    id,
+    {
+      images: imagesPaths,
+    },
+    { new: true }
+  );
+
+  if (!product) {
+    return res.status(404).json({
+      success: false,
+      message: "Cannot be updated!, not found product",
+    });
+  }
+
+  return res.status(200).json({ success: true, data: product });
+
+
+})
 
 router.delete("/:id", async (req, res) => {
   const { id } = req.params;
