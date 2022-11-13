@@ -18,11 +18,12 @@ const api = process.env.API_URL;
 const fileAccessLog = path.join(__dirname, "access.log");
 const accessLogStream = fs.createWriteStream(fileAccessLog, { flags: "a" });
 
-// Middleware
-
-app.use(bodyParser.json());
+// Cors
 app.use(cors());
 app.options("*", cors());
+
+// Middleware
+app.use(bodyParser.json());
 morgan.token("id", function getId(req) {
   return req.id;
 });
@@ -36,7 +37,9 @@ app.use(
 );
 
 app.use(authJwt())
+app.use('/public/uploads', express.static(__dirname, + '/public/uploads'))
 app.use(errorHandler)
+
 
 
 // Import Routes
