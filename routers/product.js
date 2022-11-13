@@ -3,13 +3,49 @@ const router = express.Router();
 const { Product } = require("../models/product");
 const { Category } = require("../models/category");
 const mongoose = require('mongoose');
+const multer = require("multer");
 
-router.post("/", async (req, res) => {
+const FILE_TYPE_MAP = {
+  'image/png': 'png',
+  'image/jpeg': 'jpeg',
+  'image/jpg': 'jpg'
+}
+
+const storage = multer.diskStorage({
+  destination: function(req, file, cb){
+    const isValid = FILE_TYPE_MAP[file.mimetype];
+    let uploadError = new Error("invalid image type");
+    if(isValid){
+      uploadError = null
+    }
+    cb(uploadError, 'public/uploads');
+  },
+  filename: function(req, file, cb){
+    const fileName = file.originalname.split(' ').join('-')
+    const extension = FILE_TYPE_MAP[file.mimetype]
+    cb(null, `${fileName}-${Date.now()}.${extension}`)
+  }
+})
+
+const uploadOptions = multer({storage: storage});
+
+router.post("/", uploadOptions.single('image'), async (req, res) => {
+
+  const file = req.file;
+  if(!file){
+    return res.status(400).json({
+      success: false,
+      message: "No image in the request",
+    });
+  }
+
+  // Upload image
+  const basePath = `${req.protocol}://${req.get('host')}/public/upload`
+  const fileName = `${basePath}/${req.file.filename}`
+
   const {
     name,
     description,
-    image,
-    images,
     price,
     category,
     countInStock,
@@ -30,8 +66,7 @@ router.post("/", async (req, res) => {
     const product = await Product.create({
       name,
       description,
-      image,
-      images,
+      image: fileName,
       price,
       category,
       countInStock,
