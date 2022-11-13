@@ -4,17 +4,11 @@ function errorHandler(err, req, res, next) {
   }
 
   if (err.name === "ValidationError") {
-		let errors = []
-		
-		errors = err.errors
-	
-
-    return res.status(400).json({ message: ` fields ${[errors].map(v => {return v})} is required` });
+    return res
+      .status(400)
+      .json({ message: ` fields is required`, data: err.errors });
   }
 
-
-	return res.status(500).json({ message: err });
- 
+  return res.status(500).json({ message: err });
 }
-
 module.exports = errorHandler;
