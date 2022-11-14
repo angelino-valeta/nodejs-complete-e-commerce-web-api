@@ -47,11 +47,13 @@ const productRouters = require("./routers/product");
 const categoryRouters = require("./routers/category");
 const userRouters = require("./routers/user");
 const authRouter = require("./routers/auth");
+const orderRouter = require("./routers/order");
 
 app.use(`${api}/auth`, authRouter);
 app.use(`${api}/products`, productRouters);
 app.use(`${api}/categories`, categoryRouters);
 app.use(`${api}/users`, userRouters);
+app.use(`${api}/orders`, orderRouter);
 
 app.get("/", (req, res) => {
   res.send("Hello API!!");
