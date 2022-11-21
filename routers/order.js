@@ -1,9 +1,54 @@
 const express = require("express");
+const { OrderItem } = require("../models/orderItem")
 const { Order } = require("../models/order");
 const router = express.Router();
 const mongoose = require("mongoose");
 
 router.post("/", async(req, res) => {
+
+	const {
+		orderItems,
+		shippingAddress,
+		city,
+		zip,
+		country,
+		phone,
+		status,
+		totalPrice,
+	} = req.body
+
+	try{
+
+	const orderItemsIds = Promisse.all(orderItems.map(async item => {
+		let newOrderItem = new OrderItem.create({quantity: item.quantity, productId: item.productId})
+		newOrderItem.save()
+		return newOrderItem._id;
+	}))
+
+	console.log(orderItemsIds)
+
+	const order = await Order.create({
+		orderItems:  orderItemsIds,
+		shippingAddress,
+		city,
+		zip,
+		country,
+		phone,
+		status,
+		totalPrice,
+		userId: req.auth.userId
+	})
+
+	if(!order){
+		return res.status(500).json({message: "The order cannot be created!"})
+	}
+
+	return res.status(201).json({
+		message: "Order created",
+	})
+	}catch(err){
+		return res.status(500).json({ success: false, error: err });
+	}
 	
 })
 
