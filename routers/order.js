@@ -38,7 +38,7 @@ router.post("/", async (req, res) => {
       phone,
       status,
       totalPrice,
-      userId: req.auth.userId,
+      user: req.auth.userId,
     });
 
     if (!order) {
@@ -75,10 +75,16 @@ router.get("/:id", async (req, res) => {
   }
 
   try {
-    const order = await Order.findById(id);
+    const order = await Order.findById(id).populate("orderItems", "_id quantity")
+
+
+		if(!order){
+			return res.status(404).json({success: false, message: `Cannot given Order with ID ${id}`})
+		}
+
     return res.status(200).json({ success: true, data: order });
   } catch (err) {
-    return res.status(500).json({ success: false, error: err });
+    return res.status(500).json({ success: false, message: "Oh! Sorry something went wrong on the server" });
   }
 });
 
