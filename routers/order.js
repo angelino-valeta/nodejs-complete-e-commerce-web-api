@@ -1,55 +1,57 @@
 const express = require("express");
-const { OrderItem } = require("../models/orderItem")
+const { OrderItem } = require("../models/orderItem");
 const { Order } = require("../models/order");
 const router = express.Router();
 const mongoose = require("mongoose");
 
-router.post("/", async(req, res) => {
+router.post("/", async (req, res) => {
+  const {
+    orderItems,
+    shippingAddress,
+    city,
+    zip,
+    country,
+    phone,
+    status,
+    totalPrice,
+  } = req.body;
 
-	const {
-		orderItems,
-		shippingAddress,
-		city,
-		zip,
-		country,
-		phone,
-		status,
-		totalPrice,
-	} = req.body
-	
-	try{
+  try {
+    const orderItemsPromise = Promise.all(
+      orderItems.map(async (item) => {
+        let newOrderItem = await OrderItem.create({
+          quantity: item.quantity,
+          productId: item.productId,
+        });
+        return newOrderItem._id;
+      })
+    );
 
-	const orderItemsPromise = Promise.all(orderItems.map(async item => {
-		let newOrderItem = await OrderItem.create({quantity: item.quantity, productId: item.productId})
-		return newOrderItem._id;
-	}))
+    const orderItemsIds = await orderItemsPromise;
 
-	const orderItemsIds = await orderItemsPromise;
+    const order = await Order.create({
+      orderItems: orderItemsIds,
+      shippingAddress,
+      city,
+      zip,
+      country,
+      phone,
+      status,
+      totalPrice,
+      userId: req.auth.userId,
+    });
 
-	const order = await Order.create({
-		orderItems:  orderItemsIds,
-		shippingAddress,
-		city,
-		zip,
-		country,
-		phone,
-		status,
-		totalPrice,
-		userId: req.auth.userId
-	})
+    if (!order) {
+      return res.status(500).json({ message: "The order cannot be created!" });
+    }
 
-	if(!order){
-		return res.status(500).json({message: "The order cannot be created!"})
-	}
-
-	return res.status(201).json({
-		message: "Order created",
-	})
-	}catch(err){
-		return res.status(500).json({ success: false, error: err });
-	}
-	
-})
+    return res.status(201).json({
+      message: "Order created",
+    });
+  } catch (err) {
+    return res.status(500).json({ success: false, error: err });
+  }
+});
 
 router.get("/", async (req, res) => {
   try {
@@ -63,21 +65,21 @@ router.get("/", async (req, res) => {
   }
 });
 
+router.get("/:id", async (req, res) => {
+  const { id } = req.params;
 
-router.get("/:id", async(req, res) => {
-	const { id } = req.params;
+  if (!mongoose.isValidObjectId(id)) {
+    return res
+      .status(400)
+      .json({ success: false, message: "The Id is Invalid" });
+  }
 
-	if(!mongoose.isValidObjectId(id)){
-		return res.status(400).json({success: false, message: "The Id is Invalid"});
-	}
-
-	try{
-		const order = await Order.findById(id);
-		return res.status(200).json({success: true, data:  order})
-	}catch(err){
-		return res.status(500).json({success: false, error: err})
-	}
-
-})
+  try {
+    const order = await Order.findById(id);
+    return res.status(200).json({ success: true, data: order });
+  } catch (err) {
+    return res.status(500).json({ success: false, error: err });
+  }
+});
 
 module.exports = router;
