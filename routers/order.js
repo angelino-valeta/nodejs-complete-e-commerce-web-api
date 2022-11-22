@@ -16,16 +16,15 @@ router.post("/", async(req, res) => {
 		status,
 		totalPrice,
 	} = req.body
-
+	
 	try{
 
-	const orderItemsIds = Promisse.all(orderItems.map(async item => {
-		let newOrderItem = new OrderItem.create({quantity: item.quantity, productId: item.productId})
-		newOrderItem.save()
+	const orderItemsPromise = Promise.all(orderItems.map(async item => {
+		let newOrderItem = await OrderItem.create({quantity: item.quantity, productId: item.productId})
 		return newOrderItem._id;
 	}))
 
-	console.log(orderItemsIds)
+	const orderItemsIds = await orderItemsPromise;
 
 	const order = await Order.create({
 		orderItems:  orderItemsIds,
