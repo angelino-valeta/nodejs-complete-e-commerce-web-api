@@ -49,19 +49,19 @@ router.post("/", async (req, res) => {
       message: "Order created",
     });
   } catch (err) {
-    return res.status(500).json({ success: false, error: err });
+    return res.status(500).json({ success: false, message: "Oh! Sorry something went wrong on the server" });
   }
 });
 
 router.get("/", async (req, res) => {
   try {
-    const orders = await Order.find();
+    const orders = await Order.find().populate("user", "name email ").sort({"dateOrdered": -1});
     res.status(200).json({
       success: true,
       data: orders,
     });
   } catch (err) {
-    return res.status(500).json({ success: false, error: err });
+    return res.status(500).json({ success: false, message: "Oh! Sorry something went wrong on the server" });
   }
 });
 
