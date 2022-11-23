@@ -56,7 +56,7 @@ router.post("/", async (req, res) => {
 router.get("/", async (req, res) => {
   try {
     const orders = await Order.find()
-      .populate({ path: "orderItems", populate: "product" })
+      // .populate({ path: "orderItems", populate: "product" })
       .populate("user", "name email ").sort({"dateOrdered": -1});
     res.status(200).json({
       success: true,
@@ -79,7 +79,7 @@ router.get("/:id", async (req, res) => {
   try {
     const order = await Order.findById(id)
       .populate("user", "name email")
-      .populate({path: "orderItems", populate: "product"})
+      .populate({path: "orderItems", populate: {path: "product", populate: "category"}})
 
 
 		if(!order){
