@@ -74,6 +74,23 @@ router.get("/", async (req, res) => {
   }
 });
 
+
+router.get("/get/count", async (req, res) => {
+  try{
+
+    const count = await Order.count();
+
+    return res.status(200).json({message: true, total: count})
+
+  }catch(err){
+    return res.status(500).json({
+      success: false,
+      message: "Oh! Sorry something went wrong on the server",
+      error: err,
+    });
+  }
+})
+
 router.get("/:id", async (req, res) => {
   const { id } = req.params;
 
