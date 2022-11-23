@@ -75,7 +75,7 @@ router.get("/:id", async (req, res) => {
   }
 
   try {
-    const order = await Order.findById(id).populate("orderItems", "_id quantity")
+    const order = await Order.findById(id).populate("user").populate({path: "orderItems", populate: "product"})
 
 
 		if(!order){
