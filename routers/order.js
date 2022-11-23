@@ -21,7 +21,7 @@ router.post("/", async (req, res) => {
       orderItems.map(async (item) => {
         let newOrderItem = await OrderItem.create({
           quantity: item.quantity,
-          productId: item.productId,
+          product: item.product,
         });
         return newOrderItem._id;
       })
@@ -55,7 +55,9 @@ router.post("/", async (req, res) => {
 
 router.get("/", async (req, res) => {
   try {
-    const orders = await Order.find().populate("user", "name email ").sort({"dateOrdered": -1});
+    const orders = await Order.find()
+      .populate({ path: "orderItems", populate: "product" })
+      .populate("user", "name email ").sort({"dateOrdered": -1});
     res.status(200).json({
       success: true,
       data: orders,
@@ -75,7 +77,9 @@ router.get("/:id", async (req, res) => {
   }
 
   try {
-    const order = await Order.findById(id).populate("user").populate({path: "orderItems", populate: "product"})
+    const order = await Order.findById(id)
+      .populate("user", "name email")
+      .populate({path: "orderItems", populate: "product"})
 
 
 		if(!order){
