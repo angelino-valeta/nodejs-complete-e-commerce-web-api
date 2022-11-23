@@ -49,12 +49,10 @@ router.post("/", async (req, res) => {
       message: "Order created",
     });
   } catch (err) {
-    return res
-      .status(500)
-      .json({
-        success: false,
-        message: "Oh! Sorry something went wrong on the server",
-      });
+    return res.status(500).json({
+      success: false,
+      message: "Oh! Sorry something went wrong on the server",
+    });
   }
 });
 
@@ -69,12 +67,10 @@ router.get("/", async (req, res) => {
       data: orders,
     });
   } catch (err) {
-    return res
-      .status(500)
-      .json({
-        success: false,
-        message: "Oh! Sorry something went wrong on the server",
-      });
+    return res.status(500).json({
+      success: false,
+      message: "Oh! Sorry something went wrong on the server",
+    });
   }
 });
 
@@ -103,13 +99,11 @@ router.get("/:id", async (req, res) => {
 
     return res.status(200).json({ success: true, data: order });
   } catch (err) {
-    return res
-      .status(500)
-      .json({
-        success: false,
-        message: "Oh! Sorry something went wrong on the server",
-        error: err,
-      });
+    return res.status(500).json({
+      success: false,
+      message: "Oh! Sorry something went wrong on the server",
+      error: err,
+    });
   }
 });
 
@@ -136,13 +130,46 @@ router.patch("/:id", async (req, res) => {
 
     return res.status(200).json({ success: true, data: order });
   } catch (err) {
+    return res.status(500).json({
+      success: false,
+      message: "Oh! Sorry something went wrong on the server",
+      error: err,
+    });
+  }
+});
+
+router.delete("/:id", async (req, res) => {
+  const { id } = req.params;
+
+  if (!mongoose.isValidObjectId(id)) {
     return res
-      .status(500)
-      .json({
+      .status(400)
+      .json({ success: false, message: "The Id is Invalid" });
+  }
+
+  try {
+    const order = await Order.findById(id);
+
+    if (!order) {
+      return res.status(404).json({
         success: false,
-        message: "Oh! Sorry something went wrong on the server",
-        error: err,
+        message: "Order cannot be updated!, not found",
       });
+    }
+
+    order.orderItems.map(async (item) => {
+      await OrderItem.findByIdAndRemove(item);
+    });
+
+    await Order.findByIdAndRemove(id);
+
+    return res.status(200).json({ message: "Order deleted" });
+  } catch (err) {
+    return res.status(500).json({
+      success: false,
+      message: "Oh! Sorry something went wrong on the server",
+      error: err,
+    });
   }
 });
 
