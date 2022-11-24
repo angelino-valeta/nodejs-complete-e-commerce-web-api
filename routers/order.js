@@ -99,6 +99,32 @@ router.get("/get/count", async (req, res) => {
   }
 })
 
+
+router.get("/get/totalSale", async (req, res) => {
+
+  try {
+
+    const totalSale = await Order.aggregate([{$group: {_id: null, totalSale: {$sum: "$totalPrice"}}}])
+
+    if(!totalSale){
+      return res.status(400).send("The order sales cannot be generated");
+    }
+
+    return res.status(200).json({success: true, data: totalSale.pop().totalSale})
+
+  }catch(err){
+    return res.status(500).json({
+      success: false,
+      message: "Oh! Sorry something went wrong on the server",
+      error: err,
+    });
+  }
+
+
+
+
+})
+
 router.get("/:id", async (req, res) => {
   const { id } = req.params;
 
