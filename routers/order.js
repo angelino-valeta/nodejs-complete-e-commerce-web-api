@@ -13,7 +13,6 @@ router.post("/", async (req, res) => {
     country,
     phone,
     status,
-    totalPrice,
   } = req.body;
 
   try {
@@ -28,6 +27,16 @@ router.post("/", async (req, res) => {
     );
 
     const orderItemsIds = await orderItemsPromise;
+
+    const totalOrderItemsPrices = await Promise.all(orderItemsIds.map(async (orderItemId) => {
+      const orderItem = await OrderItem.findById(orderItemId).populate('product', 'price');
+      const totalPrice = orderItem.product.price * orderItem.quantity;
+      return totalPrice; 
+    }))
+
+    console.log(totalOrderItemsPrices)
+    const totalPrice = totalOrderItemsPrices.reduce((a,b) => a + b, 0);
+
 
     const order = await Order.create({
       orderItems: orderItemsIds,
@@ -59,7 +68,6 @@ router.post("/", async (req, res) => {
 router.get("/", async (req, res) => {
   try {
     const orders = await Order.find()
-      // .populate({ path: "orderItems", populate: "product" })
       .populate("user", "name email ")
       .sort({ dateOrdered: -1 });
     res.status(200).json({
