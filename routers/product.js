@@ -126,7 +126,7 @@ router.get("/get/count", async (req, res) => {
   const totalProduct = await Product.count()
 
   if (!totalProduct) {
-    return res.status(500).json({ success: false });
+    return res.status(400).json({ success: false });
   }
 
   return res.status(200).json({ success: true, data: {total: totalProduct} });
@@ -148,7 +148,7 @@ router.get("/:id", async (req, res) => {
     const product = await Product.findById(id).populate("category");
 
     if (!product) {
-      return res.status(400).json({
+      return res.status(404).json({
         success: false,
         message: `Cannot given Product with ID ${id}`,
       });
