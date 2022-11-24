@@ -97,7 +97,8 @@ router.get("/", async (req, res) => {
 
   try {
     const products = await Product.find(filter)
-      .select("name descripton image")
+    .sort({dateCreated: -1  })
+      .select("name descripton image price dateCreated")
       .populate("category");
     return res.status(200).json({ success: true, data: products });
   } catch (err) {
